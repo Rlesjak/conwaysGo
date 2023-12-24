@@ -3,28 +3,28 @@ package main
 import (
 	"log"
 
+	"github.com/Rlesjak/conwaysGo/game"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-type Game struct{}
-
-func (g *Game) Update() error {
-	return nil
-}
-
-func (g *Game) Draw(screen *ebiten.Image) {
-	ebitenutil.DebugPrint(screen, "Hello, World!")
-}
-
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 320, 240
-}
-
 func main() {
-	ebiten.SetWindowSize(640, 480)
-	ebiten.SetWindowTitle("Hello, World!")
-	if err := ebiten.RunGame(&Game{}); err != nil {
+	ebiten.SetWindowPosition(0, 0)
+	ebiten.SetWindowSize(1200, 1000)
+	ebiten.SetWindowTitle("Conways Life")
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+
+	game := game.New()
+	game.Life.Summon(10, 10)
+	game.Life.Summon(10, 20)
+	game.Life.Summon(10, 21)
+	game.Life.Summon(20, 20)
+	game.Life.Summon(21, 20)
+	game.Life.Summon(22, 20)
+	game.Life.Summon(23, 20)
+	game.Life.Summon(23, 21)
+	game.Life.Summon(23, 22)
+
+	if err := ebiten.RunGame(&game); err != nil {
 		log.Fatal(err)
 	}
 }
