@@ -29,11 +29,17 @@ func (g *Grid) ViewportToGridDescreteCords(viewportX int, viewportY int) (x, y i
 	return
 }
 
+func (g *Grid) ViewportToGridCords(viewportX int, viewportY int) (x, y float64) {
+	x = float64(g.Camera.X+viewportX) / float64(g.CellSize)
+	y = float64(g.Camera.Y+viewportY) / float64(g.CellSize)
+	return
+}
+
 func (g *Grid) getBorderPadding() float32 {
 	return float32(math.Max(0.5, float64(g.CellSize/50)))
 }
 
-func (g *Grid) gridDescreteToViewPortCords(gridDescreteX int, gridDescreteY int) (x, y float32) {
+func (g *Grid) GridDescreteToViewPortCords(gridDescreteX int, gridDescreteY int) (x, y float32) {
 	gridAbsX := float32(gridDescreteX) * g.CellSize
 	gridAbsY := float32(gridDescreteY) * g.CellSize
 
@@ -66,7 +72,7 @@ func (g *Grid) drawEmptyCell(dst *ebiten.Image, gridDescreteX int, gridDescreteY
 
 	padding := g.getBorderPadding()
 
-	screenX, screenY := g.gridDescreteToViewPortCords(gridDescreteX, gridDescreteY)
+	screenX, screenY := g.GridDescreteToViewPortCords(gridDescreteX, gridDescreteY)
 
 	vector.DrawFilledRect(
 		dst,
@@ -91,7 +97,7 @@ func (g *Grid) drawEmptyCell(dst *ebiten.Image, gridDescreteX int, gridDescreteY
 
 func (g *Grid) drawFilledCell(dst *ebiten.Image, gridX int, gridY int) {
 
-	screenX, screenY := g.gridDescreteToViewPortCords(gridX, gridY)
+	screenX, screenY := g.GridDescreteToViewPortCords(gridX, gridY)
 
 	vector.DrawFilledRect(
 		dst,
@@ -106,7 +112,7 @@ func (g *Grid) drawFilledCell(dst *ebiten.Image, gridX int, gridY int) {
 
 func (g *Grid) drawEmptyGrid(dst *ebiten.Image) {
 
-	grid0X, grid0Y := g.gridDescreteToViewPortCords(0, 0)
+	grid0X, grid0Y := g.GridDescreteToViewPortCords(0, 0)
 
 	defer vector.DrawFilledCircle(
 		dst,

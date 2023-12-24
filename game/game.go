@@ -54,18 +54,18 @@ func (g *Game) pan() {
 }
 
 func (g *Game) zoom() {
-	_, scroll := ebiten.Wheel()
-	if scroll > 0 && g.grid.CellSize < 100 {
-		g.grid.CellSize += float32(scroll)
-		g.grid.Camera.X += int(g.grid.CellSize)
-		g.grid.Camera.Y += int(g.grid.CellSize)
-	} else if scroll < 0 && g.grid.CellSize > 5 {
-		g.grid.CellSize += float32(scroll)
-		g.grid.Camera.X -= int(g.grid.CellSize)
-		g.grid.Camera.Y -= int(g.grid.CellSize)
-	}
+	mX, mY := ebiten.CursorPosition()
 
+	oldGX, oldGY := g.grid.ViewportToGridCords(mX, mY)
+
+	_, scroll := ebiten.Wheel()
+	g.grid.CellSize += float32(scroll)
 	g.grid.CellSize = float32(math.Max(5, math.Min(100, float64(g.grid.CellSize))))
+
+	newGX, newGY := g.grid.ViewportToGridCords(mX, mY)
+
+	g.grid.Camera.X += int(float32(oldGX-newGX) * g.grid.CellSize)
+	g.grid.Camera.Y += int(float32(oldGY-newGY) * g.grid.CellSize)
 }
 
 func (g *Game) Update() error {
