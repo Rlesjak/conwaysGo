@@ -1,36 +1,94 @@
 package game
 
 import (
+	"image"
+	"math"
+
 	"github.com/Rlesjak/conwaysGo/geometry"
 	"github.com/Rlesjak/conwaysGo/grid"
 	"github.com/Rlesjak/conwaysGo/life"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Game struct {
 	grid grid.Grid
 	Life life.Life
+
+	dragStartPos *image.Point
 }
 
 func New() Game {
 	return Game{
 		grid: grid.Grid{
 			CellSize: 25,
-			Camera:   geometry.Rect{},
+			Camera: geometry.Rect{
+				X:      0,
+				Y:      0,
+				Width:  0,
+				Height: 0,
+			},
 		},
 		Life: life.New(),
 	}
 }
 
+func (g *Game) pan() {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonMiddle) {
+		mX, mY := ebiten.CursorPosition()
+		g.dragStartPos = &image.Point{
+			X: mX + g.grid.Camera.X,
+			Y: mY + g.grid.Camera.Y,
+		}
+	}
+
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonMiddle) {
+		g.dragStartPos = nil
+	}
+
+	if g.dragStartPos != nil {
+		mX, mY := ebiten.CursorPosition()
+		g.grid.Camera.X = g.dragStartPos.X - mX
+		g.grid.Camera.Y = g.dragStartPos.Y - mY
+	}
+}
+
+func (g *Game) zoom() {
+	_, scroll := ebiten.Wheel()
+	if scroll > 0 && g.grid.CellSize < 100 {
+		g.grid.CellSize += float32(scroll)
+		g.grid.Camera.X += int(g.grid.CellSize)
+		g.grid.Camera.Y += int(g.grid.CellSize)
+	} else if scroll < 0 && g.grid.CellSize > 5 {
+		g.grid.CellSize += float32(scroll)
+		g.grid.Camera.X -= int(g.grid.CellSize)
+		g.grid.Camera.Y -= int(g.grid.CellSize)
+	}
+
+	g.grid.CellSize = float32(math.Max(5, math.Min(100, float64(g.grid.CellSize))))
+}
+
 func (g *Game) Update() error {
+
+	// Spawning cells on click
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		mX, mY := ebiten.CursorPosition()
+		gX, gY := g.grid.ViewportToGridDescreteCords(mX, mY)
+		g.Life.Spawn(gX, gY)
+	}
+
+	// Handle panning
+	g.pan()
+
+	// Handle zooming
+	g.zoom()
+
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
 	screenBounds := screen.Bounds()
-	g.grid.Camera.X = -120
-	g.grid.Camera.Y = -210
 	g.grid.Camera.Width = screenBounds.Dx()
 	g.grid.Camera.Height = screenBounds.Dy()
 

@@ -15,6 +15,20 @@ type Grid struct {
 	Camera   geometry.Rect
 }
 
+func (g *Grid) Draw(dst *ebiten.Image, cells *([]cell.Cell)) {
+	g.drawEmptyGrid(dst)
+
+	for _, cell := range *cells {
+		g.drawFilledCell(dst, int(cell.X), int(cell.Y))
+	}
+}
+
+func (g *Grid) ViewportToGridDescreteCords(viewportX int, viewportY int) (x, y int) {
+	x = int(float64(g.Camera.X+viewportX) / float64(g.CellSize))
+	y = int(float64(g.Camera.Y+viewportY) / float64(g.CellSize))
+	return
+}
+
 func (g *Grid) getBorderPadding() float32 {
 	return float32(math.Max(0.5, float64(g.CellSize/50)))
 }
@@ -23,10 +37,9 @@ func (g *Grid) gridDescreteToViewPortCords(gridDescreteX int, gridDescreteY int)
 	gridAbsX := float32(gridDescreteX) * g.CellSize
 	gridAbsY := float32(gridDescreteY) * g.CellSize
 
-	screenX := gridAbsX - float32(g.Camera.X)
-	screenY := gridAbsY - float32(g.Camera.Y)
-
-	return screenX, screenY
+	x = gridAbsX - float32(g.Camera.X)
+	y = gridAbsY - float32(g.Camera.Y)
+	return
 }
 
 // Converts the window coordinate system bounds to the grid coordinate system bounds
@@ -110,13 +123,5 @@ func (g *Grid) drawEmptyGrid(dst *ebiten.Image) {
 		for j := 0; j <= visibleGridBounds.Height; j++ {
 			g.drawEmptyCell(dst, i+visibleGridBounds.X, j+visibleGridBounds.Y)
 		}
-	}
-}
-
-func (g *Grid) Draw(dst *ebiten.Image, cells *([]cell.Cell)) {
-	g.drawEmptyGrid(dst)
-
-	for _, cell := range *cells {
-		g.drawFilledCell(dst, int(cell.X), int(cell.Y))
 	}
 }

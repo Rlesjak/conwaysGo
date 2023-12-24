@@ -1,8 +1,8 @@
 package cell
 
 type Cell struct {
-	X int64
-	Y int64
+	X int
+	Y int
 }
 
 type CellNeighbour int
@@ -23,7 +23,7 @@ func (c *Cell) Equal(cin *Cell) bool {
 	return c.X == cin.X && c.Y == cin.Y
 }
 
-func (c *Cell) EqualPos(x int64, y int64) bool {
+func (c *Cell) EqualPos(x int, y int) bool {
 	return c.X == x && c.Y == x
 }
 

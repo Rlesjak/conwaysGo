@@ -43,14 +43,14 @@ func (l *Life) Tick() {
 	// }
 }
 
-func (l *Life) Summon(x int64, y int64) {
+func (l *Life) Spawn(x int, y int) {
 	l.alive = append(l.alive, cell.Cell{
 		X: x,
 		Y: y,
 	})
 }
 
-func (l *Life) Kill(x int64, y int64) {
+func (l *Life) Kill(x int, y int) {
 	// find cell in array
 
 	var i int
