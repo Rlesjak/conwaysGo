@@ -1,8 +1,11 @@
 package cell
 
+import "image"
+
 type Cell struct {
-	X int
-	Y int
+	X          int
+	Y          int
+	Neighbours int
 }
 
 type CellNeighbour int
@@ -30,45 +33,45 @@ func (c *Cell) EqualPos(x int, y int) bool {
 // XXX
 // XAX
 // XXX
-func (c *Cell) GetSurroundingCells() [NeighbourCount]Cell {
-	neighbours := [NeighbourCount]Cell{}
+func (c *Cell) GetSurroundingCells() [NeighbourCount]image.Point {
+	neighbours := [NeighbourCount]image.Point{}
 
-	neighbours[Top] = Cell{
+	neighbours[Top] = image.Point{
 		X: c.X,
 		Y: c.Y - 1,
 	}
 
-	neighbours[TopRight] = Cell{
+	neighbours[TopRight] = image.Point{
 		X: c.X + 1,
 		Y: c.Y - 1,
 	}
 
-	neighbours[Right] = Cell{
+	neighbours[Right] = image.Point{
 		X: c.X + 1,
 		Y: c.Y,
 	}
 
-	neighbours[BottomRight] = Cell{
+	neighbours[BottomRight] = image.Point{
 		X: c.X + 1,
 		Y: c.Y + 1,
 	}
 
-	neighbours[Bottom] = Cell{
+	neighbours[Bottom] = image.Point{
 		X: c.X,
 		Y: c.Y + 1,
 	}
 
-	neighbours[BottomLeft] = Cell{
+	neighbours[BottomLeft] = image.Point{
 		X: c.X - 1,
 		Y: c.Y + 1,
 	}
 
-	neighbours[Left] = Cell{
+	neighbours[Left] = image.Point{
 		X: c.X - 1,
 		Y: c.Y,
 	}
 
-	neighbours[TopLeft] = Cell{
+	neighbours[TopLeft] = image.Point{
 		X: c.X - 1,
 		Y: c.Y - 1,
 	}

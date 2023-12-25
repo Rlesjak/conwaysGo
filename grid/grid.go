@@ -1,25 +1,53 @@
 package grid
 
 import (
+	"fmt"
+	"log"
 	"math"
 
 	"github.com/Rlesjak/conwaysGo/cell"
 	"github.com/Rlesjak/conwaysGo/color"
 	"github.com/Rlesjak/conwaysGo/geometry"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
 )
 
 type Grid struct {
 	CellSize float32
 	Camera   geometry.Rect
+
+	font *sfnt.Font
+}
+
+func New() Grid {
+
+	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return Grid{
+		CellSize: 25,
+		Camera: geometry.Rect{
+			X:      0,
+			Y:      0,
+			Width:  0,
+			Height: 0,
+		},
+		font: tt,
+	}
 }
 
 func (g *Grid) Draw(dst *ebiten.Image, cells *([]cell.Cell)) {
 	g.drawEmptyGrid(dst)
 
 	for _, cell := range *cells {
-		g.drawFilledCell(dst, int(cell.X), int(cell.Y))
+		g.drawFilledCell(dst, &cell)
 	}
 }
 
@@ -95,9 +123,9 @@ func (g *Grid) drawEmptyCell(dst *ebiten.Image, gridDescreteX int, gridDescreteY
 	)
 }
 
-func (g *Grid) drawFilledCell(dst *ebiten.Image, gridX int, gridY int) {
+func (g *Grid) drawFilledCell(dst *ebiten.Image, cell *cell.Cell) {
 
-	screenX, screenY := g.GridDescreteToViewPortCords(gridX, gridY)
+	screenX, screenY := g.GridDescreteToViewPortCords(cell.X, cell.Y)
 
 	vector.DrawFilledRect(
 		dst,
@@ -107,6 +135,23 @@ func (g *Grid) drawFilledCell(dst *ebiten.Image, gridX int, gridY int) {
 		g.CellSize,
 		color.Black,
 		false,
+	)
+
+	fontSize := float64(g.CellSize * 2 / 3)
+
+	mplusNormalFont, _ := opentype.NewFace(g.font, &opentype.FaceOptions{
+		Size:    fontSize,
+		DPI:     72,
+		Hinting: font.HintingVertical,
+	})
+
+	text.Draw(
+		dst,
+		fmt.Sprintf("%d", cell.Neighbours),
+		mplusNormalFont,
+		int(screenX)+int(fontSize/2),
+		int(screenY)+int(fontSize*1.1),
+		color.Gray,
 	)
 }
 
@@ -125,6 +170,10 @@ func (g *Grid) drawEmptyGrid(dst *ebiten.Image) {
 
 	visibleGridBounds := g.getVisibleGridBounds()
 
+	if visibleGridBounds.Width > 400 {
+		dst.Fill(color.LightGray)
+		return
+	}
 	for i := 0; i <= visibleGridBounds.Width; i++ {
 		for j := 0; j <= visibleGridBounds.Height; j++ {
 			g.drawEmptyCell(dst, i+visibleGridBounds.X, j+visibleGridBounds.Y)

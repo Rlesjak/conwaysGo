@@ -5,7 +5,6 @@ import (
 	"math"
 
 	"github.com/Rlesjak/conwaysGo/color"
-	"github.com/Rlesjak/conwaysGo/geometry"
 	"github.com/Rlesjak/conwaysGo/grid"
 	"github.com/Rlesjak/conwaysGo/life"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -18,19 +17,12 @@ type Game struct {
 	Life life.Life
 
 	dragStartPos *image.Point
+	timer        int
 }
 
 func New() Game {
 	return Game{
-		grid: grid.Grid{
-			CellSize: 25,
-			Camera: geometry.Rect{
-				X:      0,
-				Y:      0,
-				Width:  0,
-				Height: 0,
-			},
-		},
+		grid: grid.New(),
 		Life: life.New(),
 	}
 }
@@ -72,6 +64,8 @@ func (g *Game) zoom() {
 
 func (g *Game) Update() error {
 
+	g.timer++
+
 	// Spawning cells on click
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		mX, mY := ebiten.CursorPosition()
@@ -79,11 +73,23 @@ func (g *Game) Update() error {
 		g.Life.Spawn(gX, gY)
 	}
 
+	// Killing cells on click
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
+		mX, mY := ebiten.CursorPosition()
+		gX, gY := g.grid.ViewportToGridDescreteCords(mX, mY)
+		g.Life.Kill(gX, gY)
+	}
+
 	// Handle panning
 	g.pan()
 
 	// Handle zooming
 	g.zoom()
+
+	if g.timer >= 10 {
+		g.timer = 0
+		g.Life.Tick()
+	}
 
 	return nil
 }

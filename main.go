@@ -16,14 +16,10 @@ func main() {
 
 	game := game.New()
 	game.Life.Spawn(10, 10)
-	game.Life.Spawn(10, 20)
-	game.Life.Spawn(10, 21)
-	game.Life.Spawn(20, 20)
-	game.Life.Spawn(21, 20)
-	game.Life.Spawn(22, 20)
-	game.Life.Spawn(23, 20)
-	game.Life.Spawn(23, 21)
-	game.Life.Spawn(23, 22)
+	game.Life.Spawn(11, 11)
+	game.Life.Spawn(12, 11)
+	game.Life.Spawn(11, 12)
+	game.Life.Spawn(10, 12)
 
 	if err := ebiten.RunGame(&game); err != nil {
 		log.Fatal(err)

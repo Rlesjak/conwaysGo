@@ -25,22 +25,44 @@ func (l *Life) GetAlive() *([]cell.Cell) {
 func (l *Life) Tick() {
 	l.generation++
 
-	// Collect all cells to which rules need to be applied
-	// Tecnichally rules have to be applied to all cells
-	// but it is not necessary to apply rules to blank space ...
-	//
-	// All cells in a 1 thickness ring around each alive cell
-	// will be collected for ruling
-	//
-	// XXX
-	// XAX
-	// XXX
+	// Copy the current alive cells
+	prevGen := append(make([]cell.Cell, 0, len(l.alive)), l.alive...)
 
-	// cellsToProcess := []cell.Cell{}
-	// for _, c := range l.alive {
-	// 	neighbours := c.GetSurroundingCells()
-	// 	cellsToProcess = append(cellsToProcess, neighbours[:]...)
-	// }
+	var deadCells = []cell.Cell{}
+
+	// Process alive cells
+	for _, aliveCell := range prevGen {
+
+		if aliveCell.Neighbours < 2 {
+			// Rule 1
+			l.Kill(aliveCell.X, aliveCell.Y)
+		} else if aliveCell.Neighbours > 3 {
+			// Rule 3
+			l.Kill(aliveCell.X, aliveCell.Y)
+		}
+
+		// Get relevant dead cells
+		// Go throug all sourounding cells of a live cell
+		// and find only the dead ones
+		neigbourCords := aliveCell.GetSurroundingCells()
+		for _, cord := range neigbourCords {
+			if l.cordsToIndex(cord.X, cord.Y) == -1 {
+				deadCells = append(deadCells, cell.Cell{
+					X: cord.X,
+					Y: cord.Y,
+				})
+			}
+		}
+	}
+
+	// Process relevant dead cells
+	// Rule 4
+	for _, deadCell := range deadCells {
+		aliveNeigbourIndexes := getNeighbourIndexes(&deadCell, &prevGen)
+		if len(aliveNeigbourIndexes) == 3 {
+			l.Spawn(deadCell.X, deadCell.Y)
+		}
+	}
 }
 
 func (l *Life) Spawn(x int, y int) {
@@ -52,24 +74,73 @@ func (l *Life) Spawn(x int, y int) {
 		}
 	}
 
-	l.alive = append(l.alive, cell.Cell{
-		X: x,
-		Y: y,
-	})
+	newCell := cell.Cell{
+		X:          x,
+		Y:          y,
+		Neighbours: 0,
+	}
+
+	nbrIndexes := l.getNeighbourIndexes(&newCell)
+
+	// Count the number of alive neigbours for the new cell
+	newCell.Neighbours = len(nbrIndexes)
+
+	// To all neigbours of the new cell add one more neigbour
+	for _, z := range nbrIndexes {
+		l.alive[z].Neighbours++
+	}
+
+	// Add new cell to the alive array
+	l.alive = append(l.alive, newCell)
 }
 
 func (l *Life) Kill(x int, y int) {
 	// find cell in array
 
-	var i int
-	var c cell.Cell
-	for i, c = range l.alive {
+	cellIndex := l.cordsToIndex(x, y)
+	if cellIndex == -1 {
+		// Cell not alive
+		return
+	}
+
+	cellToKill := l.alive[cellIndex]
+	nbrIndexes := l.getNeighbourIndexes(&cellToKill)
+
+	// To all neigbours of the new cell subtract one more neigbour
+	for _, z := range nbrIndexes {
+		l.alive[z].Neighbours--
+	}
+
+	l.alive = append(l.alive[:cellIndex], l.alive[(cellIndex+1):]...)
+}
+
+func (l *Life) cordsToIndex(x int, y int) int {
+	for i, c := range l.alive {
 		if c.EqualPos(x, y) {
-			break
+			return i
 		}
 	}
 
-	l.alive = append(l.alive[:i], l.alive[(i+1):]...)
+	return -1
+}
+
+func (l *Life) getNeighbourIndexes(cell *cell.Cell) (nbrIndexes []int) {
+	return getNeighbourIndexes(cell, &l.alive)
+}
+
+func getNeighbourIndexes(cell *cell.Cell, aliveCells *([]cell.Cell)) (nbrIndexes []int) {
+	nbrCoordinates := cell.GetSurroundingCells()
+
+	for i, c := range *aliveCells {
+		// Find indexes (in l.alive slice) of all alive neigbours of the newCell
+		for _, nbr := range nbrCoordinates {
+			if c.EqualPos(nbr.X, nbr.Y) {
+				nbrIndexes = append(nbrIndexes, i)
+			}
+		}
+	}
+
+	return
 }
 
 // Retreves the bounds of life
