@@ -21,12 +21,20 @@ type Game struct {
 	timer        int
 }
 
-func New() Game {
-	return Game{
+func New() *Game {
+
+	game := &Game{
 		grid: grid.New(),
 		Life: life.New(),
 		menu: NewGameMenu(),
 	}
+
+	game.menu.SetClearCallback(func() {
+		game.Life.Clear()
+		game.menu.UpdateState(game.Life.GetGeneration())
+	})
+
+	return game
 }
 
 func (g *Game) pan() {

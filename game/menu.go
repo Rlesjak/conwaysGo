@@ -16,16 +16,45 @@ type GameMenu struct {
 
 	generation int
 	IsRunning  bool
+
+	startStopButton Button
+	clearButton     Button
+	clearCallback   func()
 }
 
 var backgroundColor = imcolor.RGBA{0x0f, 0x0f, 0x0f, 0x88}
 
 func NewGameMenu() GameMenu {
+
+	startStopButton := NewButton(
+		10,
+		50,
+		100,
+		40,
+		color.Green,
+		"START",
+	)
+
+	clearButton := NewButton(
+		120,
+		50,
+		60,
+		40,
+		color.Red,
+		"CLEAR",
+	)
+
 	return GameMenu{
-		Width:     200,
-		Height:    100,
-		IsRunning: false,
+		Width:           200,
+		Height:          100,
+		IsRunning:       false,
+		startStopButton: startStopButton,
+		clearButton:     clearButton,
 	}
+}
+
+func (m *GameMenu) SetClearCallback(callback func()) {
+	m.clearCallback = callback
 }
 
 func (m *GameMenu) Draw(dst *ebiten.Image) {
@@ -55,31 +84,15 @@ func (m *GameMenu) Draw(dst *ebiten.Image) {
 		30,
 	)
 
-	// Draw play pause button
+	// Draw buttons
 
-	buttonColor := color.Green
-	buttonText := "START"
+	m.clearButton.Draw(dst)
+
+	m.startStopButton.SetContent(color.Green, "START")
 	if m.IsRunning {
-		buttonColor = color.Red
-		buttonText = "PAUSE"
+		m.startStopButton.SetContent(color.Red, "PAUSE")
 	}
-
-	vector.DrawFilledRect(
-		dst,
-		10,
-		50,
-		150,
-		40,
-		buttonColor,
-		false,
-	)
-
-	ebitenutil.DebugPrintAt(
-		dst,
-		buttonText,
-		70,
-		63,
-	)
+	m.startStopButton.Draw(dst)
 }
 
 func (m *GameMenu) UpdateState(generation int) {
@@ -91,9 +104,10 @@ func (m *GameMenu) CaptureMouseClick(mx, my int) (captured bool) {
 	if (mx <= m.Width) && (my <= m.Height) {
 
 		// Play pause button position
-		if (mx > 10) && (mx < 10+150) &&
-			(my > 50) && (my < 50+40) {
+		if m.startStopButton.IsTarget(mx, my) {
 			m.IsRunning = !m.IsRunning
+		} else if m.clearButton.IsTarget(mx, my) && m.clearCallback != nil {
+			m.clearCallback()
 		}
 
 		return true

@@ -30,6 +30,11 @@ func (l *Life) GetGeneration() int {
 	return int(l.generation)
 }
 
+func (l *Life) Clear() {
+	l.PrintCells()
+	*l = New()
+}
+
 func (l *Life) Evolve() {
 	l.generation++
 
@@ -185,34 +190,10 @@ func getNeighbourIndexes(cell *cell.Cell, aliveCells *([]cell.Cell)) (nbrIndexes
 	return
 }
 
-// Retreves the bounds of life
-// func (l *Life) GetBounds() Rect {
-// 	rect := Rect{
-// 		Top:    l.alive[0].Y,
-// 		Bottom: l.alive[0].Y,
-// 		Left:   l.alive[0].X,
-// 		Right:  l.alive[0].X,
-// 	}
-
-// 	for _, c := range l.alive {
-// 		if c.X < rect.Left {
-// 			rect.Left = c.X
-// 		}
-// 		if c.X > rect.Right {
-// 			rect.Right = c.X
-// 		}
-// 		if c.Y < rect.Top {
-// 			rect.Top = c.Y
-// 		}
-// 		if c.Y > rect.Bottom {
-// 			rect.Bottom = c.Y
-// 		}
-
-// 	}
-
-// 	return rect
-// }
-
-func (l *Life) Debug() {
-	fmt.Println(l.alive)
+func (l *Life) PrintCells() {
+	fmt.Print("#### SAVE ####\n\n")
+	for _, cell := range l.alive {
+		fmt.Printf("Spawn(%d, %d)\n", cell.X, cell.Y)
+	}
+	fmt.Println("\n#### END SAVE ####")
 }
