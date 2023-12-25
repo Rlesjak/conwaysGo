@@ -1,0 +1,23 @@
+game.Life.Spawn(10, 10)
+game.Life.Spawn(11, 11)
+game.Life.Spawn(12, 11)
+game.Life.Spawn(11, 12)
+game.Life.Spawn(10, 12)
+
+
+Generation  663  took:  11.708µs
+Generation  664  took:  11µs
+Generation  665  took:  8.959µs
+Generation  666  took:  8.833µs
+Generation  667  took:  10.75µs
+Generation  668  took:  13.25µs
+Generation  669  took:  10.291µs
+Generation  670  took:  20.584µs
+Generation  671  took:  11.625µs
+Generation  672  took:  8.917µs
+Generation  673  took:  8.333µs
+Generation  674  took:  10µs
+Generation  675  took:  8.5µs
+Generation  676  took:  8.292µs
+Generation  677  took:  8.416µs
+Generation  678  took:  11.75µs

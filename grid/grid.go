@@ -1,7 +1,6 @@
 package grid
 
 import (
-	"fmt"
 	"log"
 	"math"
 
@@ -10,9 +9,7 @@ import (
 	"github.com/Rlesjak/conwaysGo/geometry"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/font/sfnt"
 )
@@ -137,22 +134,22 @@ func (g *Grid) drawFilledCell(dst *ebiten.Image, cell *cell.Cell) {
 		false,
 	)
 
-	fontSize := float64(g.CellSize * 2 / 3)
+	// fontSize := float64(g.CellSize * 2 / 3)
 
-	mplusNormalFont, _ := opentype.NewFace(g.font, &opentype.FaceOptions{
-		Size:    fontSize,
-		DPI:     72,
-		Hinting: font.HintingVertical,
-	})
+	// mplusNormalFont, _ := opentype.NewFace(g.font, &opentype.FaceOptions{
+	// 	Size:    fontSize,
+	// 	DPI:     72,
+	// 	Hinting: font.HintingVertical,
+	// })
 
-	text.Draw(
-		dst,
-		fmt.Sprintf("%d", cell.Neighbours),
-		mplusNormalFont,
-		int(screenX)+int(fontSize/2),
-		int(screenY)+int(fontSize*1.1),
-		color.Gray,
-	)
+	// text.Draw(
+	// 	dst,
+	// 	fmt.Sprintf("%d", cell.Neighbours),
+	// 	mplusNormalFont,
+	// 	int(screenX)+int(fontSize/2),
+	// 	int(screenY)+int(fontSize*1.1),
+	// 	color.Gray,
+	// )
 }
 
 func (g *Grid) drawEmptyGrid(dst *ebiten.Image) {
@@ -170,7 +167,7 @@ func (g *Grid) drawEmptyGrid(dst *ebiten.Image) {
 
 	visibleGridBounds := g.getVisibleGridBounds()
 
-	if visibleGridBounds.Width > 400 {
+	if visibleGridBounds.Width > 200 {
 		dst.Fill(color.LightGray)
 		return
 	}

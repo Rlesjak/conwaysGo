@@ -25,6 +25,8 @@ func (l *Life) GetAlive() *([]cell.Cell) {
 func (l *Life) Tick() {
 	l.generation++
 
+	// startNow := time.Now()
+
 	// Copy the current alive cells
 	prevGen := append(make([]cell.Cell, 0, len(l.alive)), l.alive...)
 
@@ -63,6 +65,8 @@ func (l *Life) Tick() {
 			l.Spawn(deadCell.X, deadCell.Y)
 		}
 	}
+
+	// fmt.Println("Generation ", l.generation, " took: ", time.Since(startNow))
 }
 
 func (l *Life) Spawn(x int, y int) {
