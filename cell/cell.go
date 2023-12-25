@@ -20,11 +20,11 @@ const (
 )
 
 func (c *Cell) Equal(cin *Cell) bool {
-	return c.X == cin.X && c.Y == cin.Y
+	return (c.X == cin.X) && (c.Y == cin.Y)
 }
 
 func (c *Cell) EqualPos(x int, y int) bool {
-	return c.X == x && c.Y == x
+	return (c.X == x) && (c.Y == y)
 }
 
 // XXX

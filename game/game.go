@@ -4,11 +4,13 @@ import (
 	"image"
 	"math"
 
+	"github.com/Rlesjak/conwaysGo/color"
 	"github.com/Rlesjak/conwaysGo/geometry"
 	"github.com/Rlesjak/conwaysGo/grid"
 	"github.com/Rlesjak/conwaysGo/life"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type Game struct {
@@ -95,6 +97,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Print clock
 	// ebitenutil.DebugPrint(screen, fmt.Sprintf("Clock: %d", g.clock))
 	g.grid.Draw(screen, g.Life.GetAlive())
+
+	mX, mY := ebiten.CursorPosition()
+
+	vector.DrawFilledCircle(
+		screen,
+		float32(mX),
+		float32(mY),
+		4,
+		color.Green,
+		false,
+	)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

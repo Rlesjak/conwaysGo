@@ -44,6 +44,14 @@ func (l *Life) Tick() {
 }
 
 func (l *Life) Spawn(x int, y int) {
+
+	// Ignore duplicates
+	for _, c := range l.alive {
+		if c.EqualPos(x, y) {
+			return
+		}
+	}
+
 	l.alive = append(l.alive, cell.Cell{
 		X: x,
 		Y: y,
