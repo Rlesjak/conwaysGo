@@ -1,0 +1,39 @@
+BEFORE
+
+Generation  507  took:  30.479958ms
+Processing alive took:  2.761958ms
+Processing dead took:  28.478708ms
+
+AFTER
+
+Generation  507  took:  9.40975ms
+Processing dead took:  8.009917ms
+
+
+
+for i := 1; i <= 50; i++ {
+        offset := i * 10
+        game.Life.Spawn(10+offset, 10)
+        game.Life.Spawn(11+offset, 11)
+        game.Life.Spawn(12+offset, 11)
+        game.Life.Spawn(11+offset, 12)
+        game.Life.Spawn(10+offset, 12)
+    }
+
+    for i := 1; i <= 50; i++ {
+        offset := i * 10
+        game.Life.Spawn(10, 10+offset)
+        game.Life.Spawn(11, 11+offset)
+        game.Life.Spawn(12, 11+offset)
+        game.Life.Spawn(11, 12+offset)
+        game.Life.Spawn(10, 12+offset)
+    }
+
+    for i := 1; i <= 50; i++ {
+        offset := i * 10
+        game.Life.Spawn(10+offset, 10+offset)
+        game.Life.Spawn(11+offset, 11+offset)
+        game.Life.Spawn(12+offset, 11+offset)
+        game.Life.Spawn(11+offset, 12+offset)
+        game.Life.Spawn(10+offset, 12+offset)
+    }

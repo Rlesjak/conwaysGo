@@ -2,6 +2,8 @@ package life
 
 import (
 	"fmt"
+	"image"
+	"sync"
 	"time"
 
 	"github.com/Rlesjak/conwaysGo/cell"
@@ -60,12 +62,40 @@ func (l *Life) Evolve() {
 
 	// Process relevant dead cells
 	// Rule 4
+
+	toSpawn := make(chan image.Point)
+	var wg sync.WaitGroup
+
 	for _, deadCell := range deadCells {
-		aliveNeigbourIndexes := getNeighbourIndexes(&deadCell, &prevGen)
-		if len(aliveNeigbourIndexes) == 3 {
-			l.Spawn(deadCell.X, deadCell.Y)
-		}
+
+		wg.Add(1)
+
+		go func(cl cell.Cell) {
+			defer wg.Done()
+
+			aliveNeigbourIndexes := getNeighbourIndexes(&cl, &prevGen)
+			if len(aliveNeigbourIndexes) == 3 {
+				pnt := image.Point{
+					X: cl.X,
+					Y: cl.Y,
+				}
+
+				// Save point to be spawned later
+				toSpawn <- pnt
+			}
+		}(deadCell)
 	}
+
+	go func() {
+		wg.Wait()
+		close(toSpawn)
+	}()
+
+	for point := range toSpawn {
+		l.Spawn(point.X, point.Y)
+	}
+
+	// fmt.Println("Processing dead took: ", time.Since(startNow))
 
 	fmt.Println("Generation ", l.generation, " took: ", time.Since(startNow))
 }
