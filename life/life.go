@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Rlesjak/conwaysGo/cell"
+	"github.com/Rlesjak/conwaysGo/cfg"
 )
 
 type Life struct {
@@ -23,6 +24,10 @@ func New() Life {
 
 func (l *Life) GetAlive() *([]cell.Cell) {
 	return &l.alive
+}
+
+func (l *Life) GetGeneration() int {
+	return int(l.generation)
 }
 
 func (l *Life) Evolve() {
@@ -97,7 +102,9 @@ func (l *Life) Evolve() {
 
 	// fmt.Println("Processing dead took: ", time.Since(startNow))
 
-	fmt.Println("Generation ", l.generation, " took: ", time.Since(startNow))
+	if cfg.Debug {
+		fmt.Println("Generation ", l.generation, " took: ", time.Since(startNow))
+	}
 }
 
 func (l *Life) Spawn(x int, y int) {

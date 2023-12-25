@@ -15,6 +15,7 @@ import (
 type Game struct {
 	grid grid.Grid
 	Life life.Life
+	menu GameMenu
 
 	dragStartPos *image.Point
 	timer        int
@@ -24,6 +25,7 @@ func New() Game {
 	return Game{
 		grid: grid.New(),
 		Life: life.New(),
+		menu: NewGameMenu(),
 	}
 }
 
@@ -69,8 +71,11 @@ func (g *Game) Update() error {
 	// Spawning cells on click
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		mX, mY := ebiten.CursorPosition()
-		gX, gY := g.grid.ViewportToGridDescreteCords(mX, mY)
-		g.Life.Spawn(gX, gY)
+
+		if !g.menu.CaptureMouseClick(mX, mY) {
+			gX, gY := g.grid.ViewportToGridDescreteCords(mX, mY)
+			g.Life.Spawn(gX, gY)
+		}
 	}
 
 	// Killing cells on click
@@ -88,9 +93,11 @@ func (g *Game) Update() error {
 
 	if g.timer >= 10 {
 		g.timer = 0
-		g.Life.Evolve()
 
-		// fmt.Println("FPS: ", ebiten.ActualFPS(), " TPS", ebiten.ActualTPS())
+		if g.menu.IsRunning {
+			g.Life.Evolve()
+			g.menu.UpdateState(g.Life.GetGeneration())
+		}
 	}
 
 	return nil
@@ -106,8 +113,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// ebitenutil.DebugPrint(screen, fmt.Sprintf("Clock: %d", g.clock))
 	g.grid.Draw(screen, g.Life.GetAlive())
 
-	mX, mY := ebiten.CursorPosition()
+	// Draw menu
+	g.menu.Draw(screen)
 
+	// Draw cursor - MUST BE AT THE END
+	mX, mY := ebiten.CursorPosition()
 	vector.DrawFilledCircle(
 		screen,
 		float32(mX),
