@@ -1,0 +1,35 @@
+for j := 10; j <= 20; j++ {
+    for i := 1; i <= 10; i++ {
+        offset := i * j
+        game.Life.Spawn(10+offset, 10)
+        game.Life.Spawn(11+offset, 11)
+        game.Life.Spawn(12+offset, 11)
+        game.Life.Spawn(11+offset, 12)
+        game.Life.Spawn(10+offset, 12)
+    }
+
+    for i := 1; i <= 10; i++ {
+        offset := i * j
+        game.Life.Spawn(10, 10+offset)
+        game.Life.Spawn(11, 11+offset)
+        game.Life.Spawn(12, 11+offset)
+        game.Life.Spawn(11, 12+offset)
+        game.Life.Spawn(10, 12+offset)
+    }
+}
+
+
+Generation  33  took:  16.941625ms
+Generation  34  took:  16.395292ms
+Generation  35  took:  14.94225ms
+Generation  36  took:  16.147709ms
+Generation  37  took:  17.868125ms
+Generation  38  took:  20.101792ms
+Generation  39  took:  17.19725ms
+Generation  40  took:  17.477583ms
+Generation  41  took:  16.490459ms
+Generation  42  took:  19.373292ms
+Generation  43  took:  18.703125ms
+Generation  44  took:  19.37525ms
+Generation  45  took:  20.591125ms
+Generation  46  took:  20.010958ms

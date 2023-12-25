@@ -1,0 +1,25 @@
+game.Life.Spawn(10, 10)
+game.Life.Spawn(11, 11)
+game.Life.Spawn(12, 11)
+game.Life.Spawn(11, 12)
+game.Life.Spawn(10, 12)
+
+
+Generation  291  took:  16.792µs
+Generation  292  took:  11.042µs
+Generation  293  took:  9.458µs
+Generation  294  took:  17.125µs
+Generation  295  took:  12.208µs
+Generation  296  took:  21.083µs
+Generation  297  took:  12.583µs
+Generation  298  took:  37.75µs
+Generation  299  took:  31.25µs
+Generation  300  took:  27.958µs
+Generation  301  took:  11.792µs
+Generation  302  took:  14.083µs
+Generation  303  took:  15.125µs
+Generation  304  took:  10.917µs
+Generation  305  took:  10.208µs
+Generation  306  took:  15.208µs
+Generation  307  took:  15.416µs
+Generation  308  took:  10.5µs

@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"image"
 	"math"
 
@@ -89,9 +88,9 @@ func (g *Game) Update() error {
 
 	if g.timer >= 10 {
 		g.timer = 0
-		g.Life.Tick()
+		g.Life.Evolve()
 
-		fmt.Println("FPS: ", ebiten.ActualFPS(), " TPS", ebiten.ActualTPS())
+		// fmt.Println("FPS: ", ebiten.ActualFPS(), " TPS", ebiten.ActualTPS())
 	}
 
 	return nil

@@ -93,9 +93,7 @@ func (g *Grid) getVisibleGridBounds() geometry.Rect {
 	}
 }
 
-func (g *Grid) drawEmptyCell(dst *ebiten.Image, gridDescreteX int, gridDescreteY int) {
-
-	padding := g.getBorderPadding()
+func (g *Grid) drawEmptyCell(dst *ebiten.Image, gridDescreteX int, gridDescreteY int, padding float32) {
 
 	screenX, screenY := g.GridDescreteToViewPortCords(gridDescreteX, gridDescreteY)
 
@@ -171,9 +169,11 @@ func (g *Grid) drawEmptyGrid(dst *ebiten.Image) {
 		dst.Fill(color.LightGray)
 		return
 	}
+
+	padding := g.getBorderPadding()
 	for i := 0; i <= visibleGridBounds.Width; i++ {
 		for j := 0; j <= visibleGridBounds.Height; j++ {
-			g.drawEmptyCell(dst, i+visibleGridBounds.X, j+visibleGridBounds.Y)
+			g.drawEmptyCell(dst, i+visibleGridBounds.X, j+visibleGridBounds.Y, padding)
 		}
 	}
 }

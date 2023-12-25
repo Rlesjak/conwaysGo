@@ -2,6 +2,7 @@ package life
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/Rlesjak/conwaysGo/cell"
 )
@@ -22,10 +23,10 @@ func (l *Life) GetAlive() *([]cell.Cell) {
 	return &l.alive
 }
 
-func (l *Life) Tick() {
+func (l *Life) Evolve() {
 	l.generation++
 
-	// startNow := time.Now()
+	startNow := time.Now()
 
 	// Copy the current alive cells
 	prevGen := append(make([]cell.Cell, 0, len(l.alive)), l.alive...)
@@ -48,7 +49,7 @@ func (l *Life) Tick() {
 		// and find only the dead ones
 		neigbourCords := aliveCell.GetSurroundingCells()
 		for _, cord := range neigbourCords {
-			if l.cordsToIndex(cord.X, cord.Y) == -1 {
+			if l.CordsToIndex(cord.X, cord.Y) == -1 {
 				deadCells = append(deadCells, cell.Cell{
 					X: cord.X,
 					Y: cord.Y,
@@ -66,7 +67,7 @@ func (l *Life) Tick() {
 		}
 	}
 
-	// fmt.Println("Generation ", l.generation, " took: ", time.Since(startNow))
+	fmt.Println("Generation ", l.generation, " took: ", time.Since(startNow))
 }
 
 func (l *Life) Spawn(x int, y int) {
@@ -101,7 +102,7 @@ func (l *Life) Spawn(x int, y int) {
 func (l *Life) Kill(x int, y int) {
 	// find cell in array
 
-	cellIndex := l.cordsToIndex(x, y)
+	cellIndex := l.CordsToIndex(x, y)
 	if cellIndex == -1 {
 		// Cell not alive
 		return
@@ -118,7 +119,7 @@ func (l *Life) Kill(x int, y int) {
 	l.alive = append(l.alive[:cellIndex], l.alive[(cellIndex+1):]...)
 }
 
-func (l *Life) cordsToIndex(x int, y int) int {
+func (l *Life) CordsToIndex(x int, y int) int {
 	for i, c := range l.alive {
 		if c.EqualPos(x, y) {
 			return i
