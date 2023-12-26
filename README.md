@@ -2,6 +2,10 @@
 
 Conway's Game of Life implemented in golang and visualised with [ebitengine](https://ebitengine.org/)
 
+# WebAssembly Demo
+
+- https://conwaysgo.lesjak.tech/
+
 ## DISCLAIMER
 
 Implementation is not optimal! Do not use the implementation of the Conway's Game of Life in the **life** package as a refrence. There are some redundant checks and loops.
