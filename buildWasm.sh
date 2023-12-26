@@ -1,0 +1,1 @@
+env GOOS=js GOARCH=wasm go build -o web/conwaysGo.wasm github.com/Rlesjak/conwaysGo
