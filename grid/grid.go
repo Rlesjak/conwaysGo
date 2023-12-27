@@ -44,8 +44,19 @@ func New() Grid {
 func (g *Grid) Draw(dst *ebiten.Image, cells *(life.AliveMap)) {
 	g.drawEmptyGrid(dst)
 
-	for _, cell := range *cells {
-		g.drawFilledCell(dst, cell)
+	// Draw only the cells that are visible
+	visibleGridBounds := g.getVisibleGridBounds()
+
+	for i := 0; i < visibleGridBounds.Width; i++ {
+		for j := 0; j < visibleGridBounds.Height; j++ {
+			cell := (*cells)[life.CoordsKey{
+				X: visibleGridBounds.X + i,
+				Y: visibleGridBounds.Y + j,
+			}]
+			if cell != nil {
+				g.drawFilledCell(dst, cell)
+			}
+		}
 	}
 }
 

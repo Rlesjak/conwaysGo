@@ -16,8 +16,8 @@ type Life struct {
 }
 
 type CoordsKey struct {
-	x int
-	y int
+	X int
+	Y int
 }
 
 type AliveMap map[CoordsKey]*cell.Cell
@@ -166,8 +166,8 @@ func (l *Life) Spawn(x int, y int) {
 
 	// Add new cell to the cords map
 	l.aliveMap[CoordsKey{
-		x: x,
-		y: y,
+		X: x,
+		Y: y,
 	}] = &newCell
 
 }
@@ -189,16 +189,16 @@ func (l *Life) Kill(x int, y int) {
 
 	// Remove cell from cords map
 	delete(l.aliveMap, CoordsKey{
-		x: x,
-		y: y,
+		X: x,
+		Y: y,
 	})
 }
 
 func (l *Life) GetCell(x int, y int) *cell.Cell {
 
 	i, ok := l.aliveMap[CoordsKey{
-		x: x,
-		y: y,
+		X: x,
+		Y: y,
 	}]
 
 	if ok {
@@ -217,8 +217,8 @@ func getNeighbours(cell *cell.Cell, aliveMap *(AliveMap)) (nbrs []*cell.Cell) {
 
 	for _, nbr := range nbrCoordinates {
 		if c, ok := (*aliveMap)[CoordsKey{
-			x: nbr.X,
-			y: nbr.Y,
+			X: nbr.X,
+			Y: nbr.Y,
 		}]; ok {
 			nbrs = append(nbrs, c)
 		}
