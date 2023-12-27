@@ -1,0 +1,79 @@
+----------------------------------------------------------
+Generation  499  took:  172.311459ms
+rules 123 took:  46.797042ms
+rule 4 took:  125.528875ms
+spawning took:  96.142833ms
+----------------------------------------------------------
+Generation  500  took:  173.510083ms
+rules 123 took:  48.36725ms
+rule 4 took:  125.157667ms
+spawning took:  96.60125ms
+----------------------------------------------------------
+Generation  501  took:  185.193875ms
+rules 123 took:  46.876875ms
+rule 4 took:  138.328708ms
+spawning took:  109.443875ms
+----------------------------------------------------------
+
+## Refactored to map instead of slice for storing aliveCells
+
+----------------------------------------------------------
+Generation  499  took:  6.974625ms
+rules 123 took:  918.291µs
+rule 4 took:  6.066667ms
+mutating took:  4.540042ms
+----------------------------------------------------------
+Generation  500  took:  7.173167ms
+rules 123 took:  867.125µs
+rule 4 took:  6.3165ms
+mutating took:  5.330375ms
+----------------------------------------------------------
+Generation  501  took:  10.473041ms
+rules 123 took:  2.427ms
+rule 4 took:  8.057708ms
+mutating took:  6.472875ms
+----------------------------------------------------------
+
+
+
+## Used board seed
+
+// Gosper glider gun
+for i := 0; i < 1000; i += 40 {
+    game.Life.Spawn(i+6, 20)
+    game.Life.Spawn(i+6, 21)
+    game.Life.Spawn(i+7, 20)
+    game.Life.Spawn(i+7, 21)
+    game.Life.Spawn(i+16, 21)
+    game.Life.Spawn(i+16, 20)
+    game.Life.Spawn(i+16, 22)
+    game.Life.Spawn(i+17, 19)
+    game.Life.Spawn(i+18, 18)
+    game.Life.Spawn(i+19, 18)
+    game.Life.Spawn(i+17, 23)
+    game.Life.Spawn(i+18, 24)
+    game.Life.Spawn(i+19, 24)
+    game.Life.Spawn(i+20, 21)
+    game.Life.Spawn(i+21, 19)
+    game.Life.Spawn(i+21, 23)
+    game.Life.Spawn(i+22, 20)
+    game.Life.Spawn(i+22, 21)
+    game.Life.Spawn(i+22, 22)
+    game.Life.Spawn(i+23, 21)
+    game.Life.Spawn(i+26, 20)
+    game.Life.Spawn(i+26, 19)
+    game.Life.Spawn(i+26, 18)
+    game.Life.Spawn(i+27, 20)
+    game.Life.Spawn(i+27, 19)
+    game.Life.Spawn(i+27, 18)
+    game.Life.Spawn(i+28, 17)
+    game.Life.Spawn(i+28, 21)
+    game.Life.Spawn(i+30, 17)
+    game.Life.Spawn(i+30, 16)
+    game.Life.Spawn(i+30, 21)
+    game.Life.Spawn(i+30, 22)
+    game.Life.Spawn(i+40, 18)
+    game.Life.Spawn(i+40, 19)
+    game.Life.Spawn(i+41, 18)
+    game.Life.Spawn(i+41, 19)
+}

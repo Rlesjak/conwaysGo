@@ -7,6 +7,7 @@ import (
 	"github.com/Rlesjak/conwaysGo/cell"
 	"github.com/Rlesjak/conwaysGo/color"
 	"github.com/Rlesjak/conwaysGo/geometry"
+	"github.com/Rlesjak/conwaysGo/life"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -40,11 +41,11 @@ func New() Grid {
 	}
 }
 
-func (g *Grid) Draw(dst *ebiten.Image, cells *([]cell.Cell)) {
+func (g *Grid) Draw(dst *ebiten.Image, cells *(life.AliveMap)) {
 	g.drawEmptyGrid(dst)
 
 	for _, cell := range *cells {
-		g.drawFilledCell(dst, &cell)
+		g.drawFilledCell(dst, cell)
 	}
 }
 

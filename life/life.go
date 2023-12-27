@@ -11,19 +11,26 @@ import (
 )
 
 type Life struct {
-	alive      []cell.Cell
+	aliveMap   AliveMap
 	generation int64
 }
 
+type CoordsKey struct {
+	x int
+	y int
+}
+
+type AliveMap map[CoordsKey]*cell.Cell
+
 func New() Life {
 	return Life{
-		alive:      []cell.Cell{},
 		generation: 0,
+		aliveMap:   make(AliveMap),
 	}
 }
 
-func (l *Life) GetAlive() *([]cell.Cell) {
-	return &l.alive
+func (l *Life) GetAlive() *(AliveMap) {
+	return &l.aliveMap
 }
 
 func (l *Life) GetGeneration() int {
@@ -38,37 +45,42 @@ func (l *Life) Clear() {
 func (l *Life) Evolve() {
 	l.generation++
 
-	startNow := time.Now()
+	start := time.Now()
 
-	// Copy the current alive cells
-	prevGen := append(make([]cell.Cell, 0, len(l.alive)), l.alive...)
+	// Collect cells to kill, we dont want to kill them
+	// while iterating over the map because it would
+	// change the map
+	cellsToKill := []*cell.Cell{}
 
+	// Collect all dead cells that need to be processed with rule 4
 	var deadCells = []cell.Cell{}
 
 	// Process alive cells
-	for _, aliveCell := range prevGen {
+	for _, aliveCell := range l.aliveMap {
 
 		if aliveCell.Neighbours < 2 {
 			// Rule 1
-			l.Kill(aliveCell.X, aliveCell.Y)
+			cellsToKill = append(cellsToKill, aliveCell)
 		} else if aliveCell.Neighbours > 3 {
 			// Rule 3
-			l.Kill(aliveCell.X, aliveCell.Y)
+			cellsToKill = append(cellsToKill, aliveCell)
 		}
 
 		// Get relevant dead cells
 		// Go throug all sourounding cells of a live cell
 		// and find only the dead ones
 		neigbourCords := aliveCell.GetSurroundingCells()
-		for _, cord := range neigbourCords {
-			if l.CordsToIndex(cord.X, cord.Y) == -1 {
+		for _, ncord := range neigbourCords {
+			if l.GetCell(ncord.X, ncord.Y) == nil {
 				deadCells = append(deadCells, cell.Cell{
-					X: cord.X,
-					Y: cord.Y,
+					X: ncord.X,
+					Y: ncord.Y,
 				})
 			}
 		}
 	}
+
+	deadCellStart := time.Now()
 
 	// Process relevant dead cells
 	// Rule 4
@@ -82,7 +94,7 @@ func (l *Life) Evolve() {
 		go func(cl cell.Cell) {
 			defer wg.Done()
 
-			aliveNeigbourIndexes := getNeighbourIndexes(&cl, &prevGen)
+			aliveNeigbourIndexes := l.getNeighbours(&cl)
 			if len(aliveNeigbourIndexes) == 3 {
 				pointChannel <- image.Point{
 					X: cl.X,
@@ -102,24 +114,38 @@ func (l *Life) Evolve() {
 		toSpawn = append(toSpawn, point)
 	}
 
+	mutateStart := time.Now()
+
+	// After processing all rules apply all changes at once
+
+	// Spawn cells
 	for _, point := range toSpawn {
 		l.Spawn(point.X, point.Y)
+	}
+
+	// Kill cells
+	for _, cellToKill := range cellsToKill {
+		l.Kill(cellToKill.X, cellToKill.Y)
 	}
 
 	// fmt.Println("Processing dead took: ", time.Since(startNow))
 
 	if cfg.Debug {
-		fmt.Println("Generation ", l.generation, " took: ", time.Since(startNow))
+		delta := deadCellStart.Sub(start)
+		deltaSpawn := mutateStart.Sub(deadCellStart)
+		fmt.Println("Generation ", l.generation, " took: ", time.Since(start))
+		fmt.Println("rules 123 took: ", delta)
+		fmt.Println("rule 4 took: ", time.Since(deadCellStart))
+		fmt.Println("mutating took: ", deltaSpawn)
+		fmt.Println("----------------------------------------------------------")
 	}
 }
 
 func (l *Life) Spawn(x int, y int) {
 
 	// Ignore duplicates
-	for _, c := range l.alive {
-		if c.EqualPos(x, y) {
-			return
-		}
+	if l.GetCell(x, y) != nil {
+		return
 	}
 
 	newCell := cell.Cell{
@@ -128,63 +154,73 @@ func (l *Life) Spawn(x int, y int) {
 		Neighbours: 0,
 	}
 
-	nbrIndexes := l.getNeighbourIndexes(&newCell)
+	nbrs := l.getNeighbours(&newCell)
 
 	// Count the number of alive neigbours for the new cell
-	newCell.Neighbours = len(nbrIndexes)
+	newCell.Neighbours = len(nbrs)
 
 	// To all neigbours of the new cell add one more neigbour
-	for _, z := range nbrIndexes {
-		l.alive[z].Neighbours++
+	for _, z := range nbrs {
+		z.Neighbours++
 	}
 
-	// Add new cell to the alive array
-	l.alive = append(l.alive, newCell)
+	// Add new cell to the cords map
+	l.aliveMap[CoordsKey{
+		x: x,
+		y: y,
+	}] = &newCell
+
 }
 
 func (l *Life) Kill(x int, y int) {
-	// find cell in array
-
-	cellIndex := l.CordsToIndex(x, y)
-	if cellIndex == -1 {
-		// Cell not alive
+	// find cell in map
+	cellToKill := l.GetCell(x, y)
+	if cellToKill == nil {
+		// Cell does not exist
 		return
 	}
 
-	cellToKill := l.alive[cellIndex]
-	nbrIndexes := l.getNeighbourIndexes(&cellToKill)
+	nbrs := l.getNeighbours(cellToKill)
 
 	// To all neigbours of the new cell subtract one more neigbour
-	for _, z := range nbrIndexes {
-		l.alive[z].Neighbours--
+	for _, z := range nbrs {
+		z.Neighbours--
 	}
 
-	l.alive = append(l.alive[:cellIndex], l.alive[(cellIndex+1):]...)
+	// Remove cell from cords map
+	delete(l.aliveMap, CoordsKey{
+		x: x,
+		y: y,
+	})
 }
 
-func (l *Life) CordsToIndex(x int, y int) int {
-	for i, c := range l.alive {
-		if c.EqualPos(x, y) {
-			return i
-		}
+func (l *Life) GetCell(x int, y int) *cell.Cell {
+
+	i, ok := l.aliveMap[CoordsKey{
+		x: x,
+		y: y,
+	}]
+
+	if ok {
+		return i
 	}
 
-	return -1
+	return nil
 }
 
-func (l *Life) getNeighbourIndexes(cell *cell.Cell) (nbrIndexes []int) {
-	return getNeighbourIndexes(cell, &l.alive)
+func (l *Life) getNeighbours(cell *cell.Cell) (nbrs []*cell.Cell) {
+	return getNeighbours(cell, &l.aliveMap)
 }
 
-func getNeighbourIndexes(cell *cell.Cell, aliveCells *([]cell.Cell)) (nbrIndexes []int) {
+func getNeighbours(cell *cell.Cell, aliveMap *(AliveMap)) (nbrs []*cell.Cell) {
 	nbrCoordinates := cell.GetSurroundingCells()
 
-	for i, c := range *aliveCells {
-		// Find indexes (in l.alive slice) of all alive neigbours of the newCell
-		for _, nbr := range nbrCoordinates {
-			if c.EqualPos(nbr.X, nbr.Y) {
-				nbrIndexes = append(nbrIndexes, i)
-			}
+	for _, nbr := range nbrCoordinates {
+		if c, ok := (*aliveMap)[CoordsKey{
+			x: nbr.X,
+			y: nbr.Y,
+		}]; ok {
+			nbrs = append(nbrs, c)
 		}
 	}
 
@@ -193,7 +229,7 @@ func getNeighbourIndexes(cell *cell.Cell, aliveCells *([]cell.Cell)) (nbrIndexes
 
 func (l *Life) PrintCells() {
 	fmt.Print("#### SAVE ####\n\n")
-	for _, cell := range l.alive {
+	for _, cell := range l.aliveMap {
 		fmt.Printf("Spawn(%d, %d)\n", cell.X, cell.Y)
 	}
 	fmt.Println("\n#### END SAVE ####")

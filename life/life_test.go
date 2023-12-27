@@ -2,13 +2,15 @@ package life
 
 import (
 	"testing"
+
+	"github.com/Rlesjak/conwaysGo/cell"
 )
 
 func TestSingleCellDeath(t *testing.T) {
 	lifeInstance := New()
 	lifeInstance.Spawn(1, 1)
 	lifeInstance.Evolve()
-	if lifeInstance.CordsToIndex(1, 1) != -1 {
+	if lifeInstance.GetCell(1, 1) != nil {
 		t.Error("Single cell did not die!")
 	}
 }
@@ -41,19 +43,19 @@ func TestCellBirth(t *testing.T) {
 	l.Evolve()
 
 	// 2,1 should now be alive, all other should be dead
-	shouldBeDead := []int{
-		l.CordsToIndex(2, 0),
-		l.CordsToIndex(3, 1),
-		l.CordsToIndex(1, 2),
+	shouldBeDead := []*cell.Cell{
+		l.GetCell(2, 0),
+		l.GetCell(3, 1),
+		l.GetCell(1, 2),
 	}
 
 	for _, res := range shouldBeDead {
-		if res != -1 {
+		if res != nil {
 			t.Error("Cell that should be dead found alive!")
 		}
 	}
 
-	if l.CordsToIndex(2, 1) == -1 {
+	if l.GetCell(2, 1) == nil {
 		t.Error("Cell that should be alive found dead!")
 	}
 
@@ -75,25 +77,25 @@ func TestBlinker(t *testing.T) {
 	// XXOXX
 	// XXOXX
 	// XXOXX
-	shouldBeFound := []int{
-		l.CordsToIndex(2, 0),
-		l.CordsToIndex(2, 1),
-		l.CordsToIndex(2, 2),
+	shouldBeFound := []*cell.Cell{
+		l.GetCell(2, 0),
+		l.GetCell(2, 1),
+		l.GetCell(2, 2),
 	}
 
-	shouldBeDead := []int{
-		l.CordsToIndex(1, 1),
-		l.CordsToIndex(3, 1),
+	shouldBeDead := []*cell.Cell{
+		l.GetCell(1, 1),
+		l.GetCell(3, 1),
 	}
 
 	for _, res := range shouldBeFound {
-		if res == -1 {
+		if res == nil {
 			t.Error("Cell that should be alive found dead!")
 		}
 	}
 
 	for _, res := range shouldBeDead {
-		if res != -1 {
+		if res != nil {
 			t.Error("Cell that should be dead found alive!")
 		}
 	}
@@ -104,26 +106,42 @@ func TestBlinker(t *testing.T) {
 	// XXXXX
 	// XOOOX
 	// XXXXX
-	shouldBeFound = []int{
-		l.CordsToIndex(1, 1),
-		l.CordsToIndex(2, 1),
-		l.CordsToIndex(3, 1),
+	shouldBeFound = []*cell.Cell{
+		l.GetCell(1, 1),
+		l.GetCell(2, 1),
+		l.GetCell(3, 1),
 	}
 
-	shouldBeDead = []int{
-		l.CordsToIndex(2, 0),
-		l.CordsToIndex(2, 2),
+	shouldBeDead = []*cell.Cell{
+		l.GetCell(2, 0),
+		l.GetCell(2, 2),
 	}
 
 	for _, res := range shouldBeFound {
-		if res == -1 {
+		if res == nil {
 			t.Error("Cell that should be alive found dead!")
 		}
 	}
 
 	for _, res := range shouldBeDead {
-		if res != -1 {
+		if res != nil {
 			t.Error("Cell that should be dead found alive!")
 		}
+	}
+}
+
+func TestGetCell(t *testing.T) {
+	l := New()
+
+	l.Spawn(1, 2)
+
+	if l.GetCell(1, 2) == nil {
+		t.Error("Cell not found!")
+	}
+
+	l.Kill(1, 2)
+
+	if l.GetCell(1, 2) != nil {
+		t.Error("Cell found!")
 	}
 }
