@@ -65,6 +65,7 @@ func (g *Grid) getBorderPadding() float32 {
 	return float32(math.Max(0.5, float64(g.CellSize/50)))
 }
 
+// Converts the grid coordinate system coordinates to the viewport coordinate system coordinates
 func (g *Grid) GridDescreteToViewPortCords(gridDescreteX int, gridDescreteY int) (x, y float32) {
 	gridAbsX := float32(gridDescreteX) * g.CellSize
 	gridAbsY := float32(gridDescreteY) * g.CellSize
@@ -92,31 +93,6 @@ func (g *Grid) getVisibleGridBounds() geometry.Rect {
 		Width:  int(math.Ceil(float64(g.Camera.Width) / float64(g.CellSize))),
 		Height: int(math.Ceil(float64(g.Camera.Height) / float64(g.CellSize))),
 	}
-}
-
-func (g *Grid) drawEmptyCell(dst *ebiten.Image, gridDescreteX int, gridDescreteY int, padding float32) {
-
-	screenX, screenY := g.GridDescreteToViewPortCords(gridDescreteX, gridDescreteY)
-
-	vector.DrawFilledRect(
-		dst,
-		screenX,
-		screenY,
-		g.CellSize,
-		g.CellSize,
-		color.Gray,
-		false,
-	)
-
-	vector.DrawFilledRect(
-		dst,
-		screenX+padding,
-		screenY+padding,
-		g.CellSize-2*padding,
-		g.CellSize-2*padding,
-		color.LightGray,
-		false,
-	)
 }
 
 func (g *Grid) drawFilledCell(dst *ebiten.Image, cell *cell.Cell) {
@@ -153,9 +129,45 @@ func (g *Grid) drawFilledCell(dst *ebiten.Image, cell *cell.Cell) {
 
 func (g *Grid) drawEmptyGrid(dst *ebiten.Image) {
 
+	// Draw background
+	dst.Fill(color.LightGray)
+
+	visibleGridBounds := g.getVisibleGridBounds()
+	padding := g.getBorderPadding()
+	dblPadding := 2 * padding
+
+	// Draw vertical lines
+	for i := 0; i <= visibleGridBounds.Width; i++ {
+		screenX, screenY := g.GridDescreteToViewPortCords(visibleGridBounds.X+i, visibleGridBounds.Y)
+		vector.DrawFilledRect(
+			dst,
+			screenX-padding,
+			screenY,
+			dblPadding,
+			float32(visibleGridBounds.Height)*g.CellSize,
+			color.Gray,
+			false,
+		)
+	}
+
+	// Draw horizontal lines
+	for j := 0; j <= visibleGridBounds.Height; j++ {
+		screenX, screenY := g.GridDescreteToViewPortCords(visibleGridBounds.X, visibleGridBounds.Y+j)
+		vector.DrawFilledRect(
+			dst,
+			screenX,
+			screenY-padding,
+			float32(visibleGridBounds.Width)*g.CellSize,
+			dblPadding,
+			color.Gray,
+			false,
+		)
+	}
+
+	// Get the coordinates of the grid ORIGIN in the viewport
 	grid0X, grid0Y := g.GridDescreteToViewPortCords(0, 0)
 
-	defer vector.DrawFilledCircle(
+	vector.DrawFilledCircle(
 		dst,
 		grid0X,
 		grid0Y,
@@ -163,18 +175,4 @@ func (g *Grid) drawEmptyGrid(dst *ebiten.Image) {
 		color.Red,
 		false,
 	)
-
-	visibleGridBounds := g.getVisibleGridBounds()
-
-	if visibleGridBounds.Width > 200 {
-		dst.Fill(color.LightGray)
-		return
-	}
-
-	padding := g.getBorderPadding()
-	for i := 0; i <= visibleGridBounds.Width; i++ {
-		for j := 0; j <= visibleGridBounds.Height; j++ {
-			g.drawEmptyCell(dst, i+visibleGridBounds.X, j+visibleGridBounds.Y, padding)
-		}
-	}
 }
