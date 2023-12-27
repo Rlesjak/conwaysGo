@@ -2,7 +2,6 @@ package life
 
 import (
 	"fmt"
-	"image"
 	"sync"
 	"time"
 
@@ -73,7 +72,6 @@ func (l *Life) Evolve() {
 	// Process relevant dead cells
 	// Rule 4
 
-	toSpawn := make(chan image.Point)
 	var wg sync.WaitGroup
 
 	for _, deadCell := range deadCells {
@@ -85,25 +83,12 @@ func (l *Life) Evolve() {
 
 			aliveNeigbourIndexes := getNeighbourIndexes(&cl, &prevGen)
 			if len(aliveNeigbourIndexes) == 3 {
-				pnt := image.Point{
-					X: cl.X,
-					Y: cl.Y,
-				}
-
-				// Save point to be spawned later
-				toSpawn <- pnt
+				l.Spawn(cl.X, cl.Y)
 			}
 		}(deadCell)
 	}
 
-	go func() {
-		wg.Wait()
-		close(toSpawn)
-	}()
-
-	for point := range toSpawn {
-		l.Spawn(point.X, point.Y)
-	}
+	wg.Wait()
 
 	// fmt.Println("Processing dead took: ", time.Since(startNow))
 
